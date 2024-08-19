@@ -8,6 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 func Start() {
@@ -34,15 +36,14 @@ func Start() {
 
 	zerolog.SetGlobalLevel(logLevel)
 
-	file, err := os.OpenFile(
-		os.Getenv("LOGFILE"),
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
-		0664,
-	)
-	if err != nil {
-		exitSystem("fail to get configuration", err)
+	file := &lumberjack.Logger{
+		Filename:   os.Getenv("LOGFILE"),
+		MaxSize:    1,   // Megabytes
+		MaxBackups: 3,    // Number of backups
+		MaxAge:     28,   // Days
+		Compress:   true, // Whether to compress backups
 	}
-	defer file.Close()
+
 	multi := zerolog.MultiLevelWriter(file, os.Stdout)
 	log.Logger = zerolog.New(multi).With().Timestamp().Logger()
 	log.Debug().Msg("starting server")
