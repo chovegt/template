@@ -1,0 +1,2 @@
+log:
+  lvl: debug # trace | debug | info | warn | error | fatal | panic
